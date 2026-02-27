@@ -1,38 +1,90 @@
+import tempfile
 import subprocess
-import os
-import webbrowser
+import random
+import sys
+import re
 
-running_process = None
 
-def deploy_project(project_path="generated_project"):
-    global running_process
+FORBIDDEN_IMPORTS = [
+    "flask_sqlalchemy",
+    "flask_session",
+    "flask_login",
+    "flask_wtf",
+    "flask_migrate",
+]
 
+
+def clean_code(code):
+    lines = code.split("\n")
+    cleaned = []
+
+    for line in lines:
+        if any(pkg in line for pkg in FORBIDDEN_IMPORTS):
+            continue
+        cleaned.append(line)
+
+    return "\n".join(cleaned)
+
+
+def deploy_project(code, language):
     try:
-        main_file = os.path.join(project_path, "main.py")
+        port = random.randint(5001, 5999)
 
-        if not os.path.exists(main_file):
-            return {"status": "error", "message": "❌ main.py not found"}
+        if language.lower() == "python":
 
-        # Stop previous deployment if running
-        if running_process:
-            running_process.terminate()
+            # 🔥 Remove forbidden imports
+            code = clean_code(code)
 
-        # Start new deployment
-        running_process = subprocess.Popen(
-            ["python", main_file],
-            cwd=project_path
-        )
+            # 🔥 Remove existing __main__ block
+            code = re.sub(
+                r'if\s+__name__\s*==\s*["\']__main__["\']\s*:\s*(?:\n\s+.*)*',
+                '',
+                code
+            )
 
-        url = "http://localhost:5001"
+            # 🔥 Replace render_template
+            if "render_template(" in code:
+                code = code.replace(
+                    "render_template(",
+                    'render_template_string("<h1>Templates not supported. Inline HTML required.</h1>") #'
+                )
 
-        # Open browser automatically
-        webbrowser.open(url)
+            # 🔥 Append safe run block
+            code += f"""
 
-        return {
-            "status": "success",
-            "message": "🚀 Deployment Successful",
-            "url": url
-        }
+if __name__ == "__main__":
+    app.run(host="127.0.0.1", port={port}, debug=False)
+"""
+
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".py")
+            temp_file.write(code.encode())
+            temp_file.close()
+
+            subprocess.Popen([sys.executable, temp_file.name])
+
+            return {{
+                "status": "success",
+                "live_url": f"http://127.0.0.1:{port}"
+            }}
+
+        elif language.lower() == "html":
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
+            temp_file.write(code.encode())
+            temp_file.close()
+
+            return {{
+                "status": "success",
+                "live_url": temp_file.name
+            }}
+
+        else:
+            return {{
+                "status": "failure",
+                "live_url": "Deployment supported only for Python (Flask) and HTML"
+            }}
 
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        return {{
+            "status": "failure",
+            "live_url": str(e)
+        }}

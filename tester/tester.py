@@ -1,26 +1,49 @@
-import os
-import subprocess
+import re
+from codegen.generator import generate_clean_code
 
-def test_project(language):
-    try:
-        if language == "Python":
-            result = subprocess.run(
-                ["python", "generated_project/app.py"],
-                capture_output=True,
-                text=True
-            )
-            return "Tests Passed ✅\n" + result.stdout
 
-        elif language == "JavaScript":
-            result = subprocess.run(
-                ["node", "generated_project/app.js"],
-                capture_output=True,
-                text=True
-            )
-            return "Tests Passed ✅\n" + result.stdout
+def suggest_fix(code, language, error_message):
 
-        else:
-            return "Unsupported language"
+    if not error_message:
+        return {"error": "No error message provided."}
 
-    except Exception as e:
-        return f"Test Failed ❌ {str(e)}"
+    # Extract line number
+    match = re.search(r"line\s*(\d+)", error_message)
+
+    if not match:
+        return {"error": "Could not detect error line."}
+
+    line_number = int(match.group(1))
+    lines = code.split("\n")
+
+    if line_number < 1 or line_number > len(lines):
+        return {"error": "Line number out of range."}
+
+    original_line = lines[line_number - 1]
+
+    prompt = f"""
+Fix ONLY this single {language} line.
+
+Error message:
+{error_message}
+
+Incorrect line:
+{original_line}
+
+Rules:
+- Return ONLY the corrected line.
+- Do NOT explain.
+- Do NOT rewrite full code.
+- Do NOT include markdown.
+- Only the corrected line.
+"""
+
+    corrected_line = generate_clean_code(prompt, language)
+
+    corrected_line = corrected_line.strip()
+
+    return {
+        "line_number": line_number,
+        "original_line": original_line,
+        "replacement_line": corrected_line
+    }

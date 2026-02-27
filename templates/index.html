@@ -1,199 +1,117 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Intelligent Build & Release Manager</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            height: 100vh;
-            background: linear-gradient(135deg, #4baea0, #f08a24);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .dashboard {
-            width: 90%;
-            height: 90%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .left-section {
-            width: 45%;
-            color: #fff;
-        }
-
-        .left-section h1 {
-            font-size: 55px;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-
-        .left-section p {
-            font-size: 20px;
-            font-weight: 300;
-            line-height: 1.6;
-        }
-
-        .right-section {
-            width: 45%;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(15px);
-            padding: 30px;
-            border-radius: 25px;
-            box-shadow: 0px 10px 30px rgba(0,0,0,0.3);
-        }
-
-        .input-row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        input, select {
-            flex: 1;
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            font-size: 14px;
-        }
-
-        .buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        button {
-            flex: 1;
-            padding: 10px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            transition: 0.3s ease;
-        }
-
-        .btn-generate {
-            background:#9ad6c6;
-            color: #333;
-        }
-
-        .btn-build {
-            background: #ffe082;
-        }
-
-        button:hover {
-            transform: translateY(-3px);
-        }
-
-        textarea {
-            width: 100%;
-            height: 240px; 
-            border-radius: 15px;
-            border: none;
-            padding: 15px;
-            margin-bottom: 20px;
-            resize: none;
-            font-size: 14px;
-        }
-
-        .output {
-            height: 200px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Intelligent Build & Release Manager</title>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
 
-<div class="dashboard">
+<header class="header">
+  <div class="logo">⚡ IBRM</div>
+  <nav>
+    <a href="#generate">Generate</a>
+    <a href="#build">Build</a>
+    <a href="#ai">AI Suggestion</a>
+    <a href="#explain">Explain</a>
+  </nav>
+</header>
 
-    <div class="left-section">
-        <h1>Intelligent Build & Release Manager</h1>
-           <h2><p>The smart way to automatically generate code and validates builds using AI-powered automation.</p></h2>
-    
+<section class="hero">
+  <div class="hero-text">
+    <h1>Intelligent Build<br/>& Release Manager</h1>
+    <p>AI-powered code generation, validation, build in one intelligent pipeline.</p>
+    <div class="hero-actions">
+      <button class="primary-btn">Get Started</button>
     </div>
+  </div>
 
-    <div class="right-section">
+  <div class="hero-cards">
+    <div class="float-card">🤖 AI Code</div>
+    <div class="float-card">🛠️ Build</div>
+    <div class="float-card">💡 AI Suggestions</div>
+    <div class="float-card">📖 Code explaination</div>
+    <div class="float-card">⬇️ Download project</div>
 
-        <div class="input-row">
-            <input type="text" id="requirement" placeholder="Enter requirement (e.g., calculator)">
-            <select id="language">
-                <option value="python">Python</option>
-                <option value="c">C</option>
-                <option value="cpp">C++</option>
-                <option value="javascript">JavaScript</option>
-                <option value="java">Java</option>
-                
-            </select>
-        </div>
+  </div>
+</section>
 
-        <div class="buttons">
-            <button class="btn-generate" onclick="generateCode()">Generate</button>
-            <button class="btn-build" onclick="buildCode()">Build</button>
-        </div>
+<section id="generate" class="section">
+  <h2>AI Code Generator</h2>
+  <p>Select language and generate production-ready code.</p>
 
-        <textarea id="generatedCode" placeholder="Generated code will appear here..."></textarea>
+  <div class="input-container">
+    <input type="text" id="promptInput" placeholder="Enter your prompt..." />
+    <select id="languageSelect">
+        <option value="python">Python</option>
+        <option value="c">C</option>
+        <option value="cpp">C++</option>
+        <option value="java">Java</option>
+        <option value="javascript">JavaScript</option>
+    </select>
+  </div>
 
-        <textarea id="buildOutput" class="output" placeholder="Build / Deploy output will appear here..."></textarea>
+  <div class="code-container">
+    <button id="copyBtn" onclick="copyCode()">Copy</button>
+    <textarea
+      id="codeBox"
+      class="code-box"
+      placeholder="Your generated code will appear here..."></textarea>
+  </div>
 
+  <div class="btn-container">
+    <button onclick="generateCode()" type="button" class="primary-btn">
+      Generate Code
+    </button>
+  </div>
+</section>
+
+<section id="build" class="section">
+  <h2>Build & Validation</h2>
+  <p>Real-time build status with logs.</p>
+
+  <div class="terminal" id="buildLogs"></div>
+  <button class="primary-btn" onclick="runBuild()">Run Build</button>
+
+  <div class="accuracy-container">
+    <div class="accuracy-header">
+        Build Accuracy: <span id="accuracyValue">0%</span>
     </div>
+    <canvas id="accuracyGraph"></canvas>
+  </div>
+</section>
 
-</div>
+<section id="ai" class="section">
+  <h2>AI Suggestions</h2>
+  <p>Fix errors and improve performance automatically.</p>
+  <div id="aiSuggestion" class="ai-card"></div>
+  <button class="primary-btn" onclick="getSuggestions()">
+      Get Suggestions
+  </button>
+</section>
 
-<script>
-function generateCode() {
-    const requirement = document.getElementById("requirement").value;
-    const language = document.getElementById("language").value;
+<section id="explain" class="section">
+  <h2>📖 Code Explanation</h2>
+  <p>Understand what your generated code does.</p>
 
-    fetch("/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            requirement: requirement,
-            language: language
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.code) {
-            document.getElementById("generatedCode").value = data.code;
-        } else {
-            alert("Generation failed");
-        }
-    })
-    .catch(error => console.error(error));
-}
+  <div id="codeExplanation" class="ai-card"></div>
 
-function buildCode() {
-    const outputBox = document.getElementById("buildOutput");
+  <button class="primary-btn" onclick="explainCode()">
+      Explain Code
+  </button>
 
-    outputBox.value = "Building project...\n";
+  <button class="primary-btn" onclick="downloadProject()">
+      ⬇ Download Project
+  </button>
+</section>
 
-    fetch("/build", { method: "POST" })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === "success") {
-            outputBox.value += data.message;
-        } else {
-            outputBox.value += "Build Failed ❌\n\n";
-            outputBox.value += data.message || "Unknown Error";
-        }
-    })
-    .catch(error => {
-        outputBox.value += "\nServer Error: " + error;
-    });
-}
+<footer class="footer">
+  © 2026 Intelligent Build & Release Manager
+</footer>
 
-</script>
+<script src="/static/script.js"></script>
 
 </body>
 </html>
